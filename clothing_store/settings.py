@@ -8,6 +8,11 @@ SECRET_KEY = os.environ.get(
     "django-insecure-change-me-in-production"
 )
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://web-production-2afc3.up.railway.app',
+    'https://royaloutfits.co.ke',
+]
+
 DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 ALLOWED_HOSTS = ['*']
 
