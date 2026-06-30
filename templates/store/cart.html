@@ -1,0 +1,98 @@
+{% extends 'store/base.html' %}
+{% block title %}Your cart — ROYAL OUTFITS{% endblock %}
+
+{% block extra_css %}
+<style>
+  .cart-wrap { max-width: 700px; margin: 32px auto; padding: 0 24px; }
+  .cart-wrap h1 { font-size: 24px; font-weight: 600; margin-bottom: 24px; }
+  .cart-item { display: grid; grid-template-columns: 72px 1fr auto; gap: 16px; align-items: center; background: #fff; border: 1px solid #e8e7e0; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+  .item-img { width: 72px; height: 72px; border-radius: 8px; background: #f1f0e8; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #ccc; }
+  .item-img img { width: 100%; height: 100%; object-fit: cover; }
+  .item-name { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+  .item-price { font-size: 13px; color: #888; }
+  .item-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .qty-form { display: flex; align-items: center; gap: 6px; }
+  .qty-form select { padding: 5px 8px; border: 1px solid #d8d7d0; border-radius: 6px; font-size: 13px; background: #fff; }
+  .qty-form button { padding: 5px 10px; border-radius: 6px; border: 1px solid #d8d7d0; background: none; font-size: 12px; cursor: pointer; }
+  .qty-form button:hover { background: #f1f0e8; }
+  .remove-form button { padding: 5px 10px; border-radius: 6px; border: 1px solid #F09595; color: #791F1F; background: none; font-size: 12px; cursor: pointer; }
+  .remove-form button:hover { background: #FCEBEB; }
+  .item-total { font-size: 16px; font-weight: 600; white-space: nowrap; }
+  .cart-summary { background: #fff; border: 1px solid #e8e7e0; border-radius: 12px; padding: 20px; margin-top: 24px; }
+  .summary-row { display: flex; justify-content: space-between; font-size: 15px; padding: 6px 0; }
+  .summary-total { font-size: 20px; font-weight: 700; border-top: 1px solid #e8e7e0; margin-top: 10px; padding-top: 14px; }
+  .empty-cart { text-align: center; padding: 80px 0; color: #888; }
+  .empty-cart h2 { font-size: 20px; margin-bottom: 8px; color: #555; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cart-wrap">
+  <h1>Your cart</h1>
+
+  {% if cart|length == 0 %}
+    <div class="empty-cart">
+      <h2>Your cart is empty</h2>
+      <p>Head back to the shop to add some items.</p>
+      <br>
+      <a href="/" class="btn btn-primary">Browse the store</a>
+    </div>
+  {% else %}
+    {% for item in cart %}
+    <div class="cart-item">
+      <div class="item-img">
+        {% if item.product.image %}
+          <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+        {% else %}👗{% endif %}
+      </div>
+      <div>
+        <div class="item-name">{{ item.product.name }}</div>
+        <div class="item-price">KES {{ item.price|floatformat:0 }} each</div>
+      </div>
+      <div>
+        <div class="item-actions">
+          <form class="qty-form" method="post" action="/cart/update/{{ item.product.pk }}/">
+            {% csrf_token %}
+            <select name="quantity" onchange="this.form.submit()">
+              {% for i in "12345678910"|make_list %}
+                <option value="{{ forloop.counter }}" {% if forloop.counter == item.quantity %}selected{% endif %}>
+                  {{ forloop.counter }}
+                </option>
+              {% endfor %}
+            </select>
+          </form>
+          <form class="remove-form" method="post" action="/cart/remove/{{ item.product.pk }}/">
+            {% csrf_token %}
+            <button type="submit">Remove</button>
+          </form>
+        </div>
+        <div class="item-total" style="margin-top:8px;text-align:right">
+          KES {{ item.total_price|floatformat:0 }}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    <div class="cart-summary">
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span>KES {{ cart.total|floatformat:0 }}</span>
+      </div>
+      <div class="summary-row">
+        <span style="color:#888">Delivery</span>
+        <span style="color:#888">Calculated at checkout</span>
+      </div>
+      <div class="summary-row summary-total">
+        <span>Total</span>
+        <span>KES {{ cart.total|floatformat:0 }}</span>
+      </div>
+      <a href="/cart/checkout/" class="btn btn-primary" style="width:100%;justify-content:center;padding:13px;margin-top:16px;">
+        Proceed to checkout
+      </a>
+      <a href="/" class="btn btn-outline" style="width:100%;justify-content:center;padding:13px;margin-top:10px;">
+        Continue shopping
+      </a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'store/base.html' %}
+{% block title %}Order confirmed — ROYAL OUTFITS{% endblock %}
+
+{% block extra_css %}
+<style>
+  .confirm-wrap { max-width: 600px; margin: 48px auto; padding: 0 24px; text-align: center; }
+  .check { width: 64px; height: 64px; background: #EAF3DE; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 20px; }
+  .confirm-wrap h1 { font-size: 26px; font-weight: 600; margin-bottom: 8px; }
+  .confirm-wrap p { color: #666; font-size: 15px; margin-bottom: 24px; }
+  .order-card { background: #fff; border: 1px solid #e8e7e0; border-radius: 12px; padding: 20px; text-align: left; margin-bottom: 24px; }
+  .order-card h2 { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: #555; }
+  .order-row { display: flex; justify-content: space-between; font-size: 14px; padding: 5px 0; border-bottom: 1px solid #f1f0e8; }
+  .order-row:last-child { border-bottom: none; }
+  .order-row span:first-child { color: #888; }
+  .total-row { font-weight: 700; font-size: 16px; padding-top: 12px; border-top: 1px solid #e8e7e0; margin-top: 6px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="confirm-wrap">
+  <div class="check">✓</div>
+  <h1>Order placed!</h1>
+  <p>Thanks {{ order.full_name }}, your order is confirmed. We'll reach you at <strong>{{ order.phone }}</strong> to arrange delivery.</p>
+
+  <div class="order-card">
+    <h2>Order #{{ order.pk }}</h2>
+    {% for item in order.items.all %}
+      <div class="order-row">
+        <span>{{ item.product_name }} &times; {{ item.quantity }}</span>
+        <span>KES {{ item.subtotal|floatformat:0 }}</span>
+      </div>
+    {% endfor %}
+    <div class="order-row total-row">
+      <span>Total paid</span>
+      <span>KES {{ order.total|floatformat:0 }}</span>
+    </div>
+  </div>
+
+  <div class="order-card">
+    <h2>Delivery details</h2>
+    <div class="order-row"><span>Name</span><span>{{ order.full_name }}</span></div>
+    <div class="order-row"><span>Phone</span><span>{{ order.phone }}</span></div>
+    <div class="order-row"><span>Address</span><span>{{ order.delivery_address }}</span></div>
+    {% if order.notes %}
+      <div class="order-row"><span>Notes</span><span>{{ order.notes }}</span></div>
+    {% endif %}
+  </div>
+
+  <a href="/" class="btn btn-primary" style="padding:13px 32px;">Continue shopping</a>
+</div>
+{% endblock %}

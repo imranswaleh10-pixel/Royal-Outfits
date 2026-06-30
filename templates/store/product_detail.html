@@ -1,0 +1,106 @@
+{% extends 'store/base.html' %}
+{% block title %}{{ product.name }} — ROYAL OUTFITS{% endblock %}
+
+{% block extra_css %}
+<style>
+  .detail { max-width: 900px; margin: 32px auto; padding: 0 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+  @media(max-width:600px){ .detail { grid-template-columns:1fr; } }
+  .detail-img { aspect-ratio: 3/4; background: #f1f0e8; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .detail-img img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-img-placeholder { font-size: 80px; color: #ccc; }
+  .detail-info h1 { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+  .detail-cat { font-size: 13px; color: #888; margin-bottom: 16px; }
+  .detail-price { font-size: 28px; font-weight: 700; margin-bottom: 16px; }
+  .detail-desc { font-size: 15px; color: #555; line-height: 1.7; margin-bottom: 20px; }
+  .stock-info { font-size: 14px; margin-bottom: 20px; padding: 8px 14px; border-radius: 8px; display: inline-block; }
+  .stock-in  { background: #EAF3DE; color: #27500A; }
+  .stock-low { background: #FAEEDA; color: #633806; }
+  .stock-out { background: #FCEBEB; color: #791F1F; }
+  .qty-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .qty-row label { font-size: 14px; color: #555; }
+  .qty-row select { padding: 8px 12px; border: 1px solid #d8d7d0; border-radius: 8px; font-size: 14px; background: #fff; }
+  .related { max-width: 900px; margin: 0 auto 40px; padding: 0 24px; }
+  .related h2 { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+  .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+  .mini-card { background: #fff; border: 1px solid #e8e7e0; border-radius: 10px; overflow: hidden; }
+  .mini-card-img { aspect-ratio: 3/4; background: #f1f0e8; display: flex; align-items: center; justify-content: center; font-size: 36px; color: #ccc; overflow: hidden; }
+  .mini-card-img img { width: 100%; height: 100%; object-fit: cover; }
+  .mini-card-body { padding: 10px; }
+  .mini-card-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .mini-card-price { font-size: 13px; color: #888; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail">
+  <div class="detail-img">
+    {% if product.image %}
+      <img src="{{ product.image.url }}" alt="{{ product.name }}">
+    {% else %}
+      <span class="detail-img-placeholder">👗</span>
+    {% endif %}
+  </div>
+  <div class="detail-info">
+    <h1>{{ product.name }}</h1>
+    <div class="detail-cat">
+      {% if product.category %}<a href="/?category={{ product.category.slug }}">{{ product.category.name }}</a>{% endif %}
+      {% if product.size != 'one_size' %} &middot; Size {{ product.size }}{% endif %}
+    </div>
+    <div class="detail-price">KES {{ product.price|floatformat:0 }}</div>
+
+    {% if product.stock_status == 'in_stock' %}
+      <span class="stock-info stock-in">{{ product.stock }} in stock</span>
+    {% elif product.stock_status == 'low_stock' %}
+      <span class="stock-info stock-low">Only {{ product.stock }} left — order soon</span>
+    {% else %}
+      <span class="stock-info stock-out">Out of stock</span>
+    {% endif %}
+
+    {% if product.description %}
+      <div class="detail-desc">{{ product.description }}</div>
+    {% endif %}
+
+    {% if product.is_in_stock %}
+      <form method="post" action="/cart/add/{{ product.pk }}/">
+        {% csrf_token %}
+        <div class="qty-row">
+          <label for="qty">Quantity</label>
+          <select name="quantity" id="qty">
+            {% for i in "12345"|make_list %}
+              <option value="{{ forloop.counter }}">{{ forloop.counter }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <input type="hidden" name="next" value="/product/{{ product.pk }}/">
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:13px;">
+          Add to cart
+        </button>
+      </form>
+    {% else %}
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:13px;" disabled>
+        Sold out
+      </button>
+    {% endif %}
+  </div>
+</div>
+
+{% if related %}
+<div class="related">
+  <h2>You might also like</h2>
+  <div class="related-grid">
+    {% for item in related %}
+    <a href="/product/{{ item.pk }}/" class="mini-card">
+      <div class="mini-card-img">
+        {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">
+        {% else %}👗{% endif %}
+      </div>
+      <div class="mini-card-body">
+        <div class="mini-card-name">{{ item.name }}</div>
+        <div class="mini-card-price">KES {{ item.price|floatformat:0 }}</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

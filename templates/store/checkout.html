@@ -1,0 +1,83 @@
+{% extends 'store/base.html' %}
+{% block title %}Checkout — ROYAL OUTFITS{% endblock %}
+
+{% block extra_css %}
+<style>
+  .checkout-wrap { max-width: 680px; margin: 32px auto; padding: 0 24px; }
+  .checkout-wrap h1 { font-size: 24px; font-weight: 600; margin-bottom: 24px; }
+  .form-card { background: #fff; border: 1px solid #e8e7e0; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .form-card h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #555; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: #555; }
+  .field input, .field textarea { width: 100%; padding: 10px 14px; border: 1px solid #d8d7d0; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; }
+  .field input:focus, .field textarea:focus { border-color: #888; }
+  .field textarea { resize: vertical; min-height: 80px; }
+  .req { color: #791F1F; }
+  .order-summary { background: #f8f8f6; border-radius: 8px; padding: 16px; }
+  .summary-item { display: flex; justify-content: space-between; font-size: 14px; padding: 5px 0; }
+  .summary-divider { border: none; border-top: 1px solid #e8e7e0; margin: 10px 0; }
+  .summary-total { font-weight: 700; font-size: 16px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="checkout-wrap">
+  <h1>Checkout</h1>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="form-card">
+      <h2>Your details</h2>
+      <div class="field">
+        <label>Full name <span class="req">*</span></label>
+        <input type="text" name="full_name" required placeholder="Jane Mwangi">
+      </div>
+      <div class="field">
+        <label>Phone number <span class="req">*</span></label>
+        <input type="tel" name="phone" required placeholder="+254 7XX XXX XXX">
+      </div>
+      <div class="field">
+        <label>Email address</label>
+        <input type="email" name="email" placeholder="jane@example.com">
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h2>Delivery address</h2>
+      <div class="field">
+        <label>Full delivery address <span class="req">*</span></label>
+        <textarea name="address" required placeholder="House/flat number, street, estate, area — Nairobi"></textarea>
+      </div>
+      <div class="field">
+        <label>Delivery notes</label>
+        <textarea name="notes" placeholder="Any instructions for the courier (optional)"></textarea>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h2>Order summary</h2>
+      <div class="order-summary">
+        {% for item in cart %}
+          <div class="summary-item">
+            <span>{{ item.product.name }} &times; {{ item.quantity }}</span>
+            <span>KES {{ item.total_price|floatformat:0 }}</span>
+          </div>
+        {% endfor %}
+        <hr class="summary-divider">
+        <div class="summary-item summary-total">
+          <span>Total</span>
+          <span>KES {{ cart.total|floatformat:0 }}</span>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;font-size:16px;">
+      Place order
+    </button>
+    <a href="/cart/" class="btn btn-outline" style="width:100%;justify-content:center;padding:14px;margin-top:10px;">
+      Back to cart
+    </a>
+  </form>
+</div>
+{% endblock %}
